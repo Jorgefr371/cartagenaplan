@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Cartagena Puente Festivo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: one narrow reading column; plan switcher with sticky tabs; itinerary as day timelines */
+:root{
+  --bg:#0E1416; --surface:#151E21; --line:#24323A; --fg:#E8EEF0; --muted:#8FA3AB;
+  --sea:#3FD0C6; --bloom:#F0568C; --sun:#F2B544; --ok:#4BD08A; --warn:#F2B544; --bad:#F0566A;
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --body:"Figtree",ui-sans-serif,system-ui,-apple-system,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){
+  --bg:#F7F9F9; --surface:#FFFFFF; --line:#DDE5E7; --fg:#132126; --muted:#5A6E75;
+  --sea:#0E8F88; --bloom:#C92B66; --sun:#B67A06; --ok:#178A50; --warn:#A86D00; --bad:#C3283F; color-scheme:light}}
+:root[data-theme="light"]{
+  --bg:#F7F9F9; --surface:#FFFFFF; --line:#DDE5E7; --fg:#132126; --muted:#5A6E75;
+  --sea:#0E8F88; --bloom:#C92B66; --sun:#B67A06; --ok:#178A50; --warn:#A86D00; --bad:#C3283F; color-scheme:light}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.6;padding-inline:16px;padding-block:0 64px}
+.wrap{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:56px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.1;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.6rem);font-weight:800;letter-spacing:-.02em}
+h2{font-size:clamp(1.5rem,3.6vw,2rem);font-weight:700;letter-spacing:-.01em}
+h3{font-size:1.15rem;font-weight:700}
+p{margin:0}
+a{color:var(--sea);text-underline-offset:3px}
+a:focus-visible,button:focus-visible{outline:2px solid var(--sea);outline-offset:2px;border-radius:6px}
+.eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.muted{color:var(--muted)}
+.num{font-variant-numeric:tabular-nums}
+section{display:flex;flex-direction:column;gap:20px}
+
+/* hero */
+.hero{padding-top:48px;display:flex;flex-direction:column;gap:18px}
+.horizon{height:120px;border-radius:14px;position:relative;overflow:hidden;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--sun) 55%,var(--bloom)) 0%,var(--bloom) 38%,color-mix(in srgb,var(--bloom) 30%,var(--sea)) 58%,var(--sea) 59%,color-mix(in srgb,var(--sea) 55%,var(--bg)) 100%)}
+.horizon::after{content:"";position:absolute;left:62%;top:30%;width:54px;height:54px;border-radius:50%;background:color-mix(in srgb,var(--sun) 80%,white);box-shadow:0 0 40px var(--sun)}
+.horizon .wall{position:absolute;bottom:41%;left:0;right:0;height:22px;background:
+  repeating-linear-gradient(90deg,color-mix(in srgb,var(--bg) 70%,var(--bloom)) 0 18px,transparent 18px 26px) top/100% 8px no-repeat,
+  linear-gradient(color-mix(in srgb,var(--bg) 70%,var(--bloom)),color-mix(in srgb,var(--bg) 70%,var(--bloom))) bottom/100% 14px no-repeat;z-index:1}
+.facts{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-size:.8rem;padding:4px 10px;border:1px solid var(--line);border-radius:999px;color:var(--muted);white-space:nowrap}
+.lead{font-size:1.1rem;max-width:62ch;color:var(--muted)}
+
+/* review */
+.review{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.rv{display:grid;grid-template-columns:110px 1fr;gap:16px;padding:18px 0;border-bottom:1px solid var(--line)}
+.rv .day{font-family:var(--display);font-weight:700}
+.rv ul{margin:6px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:6px}
+.tag{display:inline-block;font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:999px;margin-right:6px;vertical-align:1px}
+.t-ok{color:var(--ok);background:color-mix(in srgb,var(--ok) 14%,transparent)}
+.t-warn{color:var(--warn);background:color-mix(in srgb,var(--warn) 16%,transparent)}
+.t-bad{color:var(--bad);background:color-mix(in srgb,var(--bad) 14%,transparent)}
+.callout{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;gap:8px}
+.callout strong{color:var(--fg)}
+
+/* plan compare */
+.compare{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.pc{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:10px;cursor:pointer;text-align:left;color:inherit;font:inherit;transition:border-color .2s,transform .2s}
+.pc:hover{transform:translateY(-2px)}
+.pc[aria-pressed="true"]{border-color:var(--pc)}
+.pc .k{font-family:var(--display);font-weight:800;font-size:1.6rem;color:var(--pc)}
+.pc .who{font-size:.88rem;color:var(--muted)}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--pc);border-radius:3px}
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;gap:6px;padding-block:10px;border-bottom:1px solid var(--line);overflow-x:auto}
+.tab{font:600 .9rem var(--body);color:var(--muted);background:none;border:1px solid transparent;border-radius:999px;padding:6px 14px;cursor:pointer;white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--fg);border-color:var(--pc);background:color-mix(in srgb,var(--pc) 12%,transparent)}
+
+/* itinerary */
+.plan{display:flex;flex-direction:column;gap:28px}
+.dayblock{display:flex;flex-direction:column;gap:4px}
+.dayhead{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.dayhead .eyebrow{color:var(--pc)}
+.it{display:grid;grid-template-columns:96px 1fr auto;gap:14px;padding:12px 0;border-bottom:1px dashed var(--line);align-items:start}
+.it .time{font-family:var(--mono);font-size:.8rem;color:var(--muted);padding-top:3px}
+.it .what{min-width:0}
+.it .what b{font-weight:600}
+.it .what p{font-size:.9rem;color:var(--muted)}
+.it .price{font-family:var(--mono);font-size:.85rem;white-space:nowrap;text-align:right;padding-top:2px}
+.it .price small{display:block;color:var(--muted);font-size:.7rem}
+.links{display:flex;gap:12px;flex-wrap:wrap;font-size:.82rem;margin-top:4px}
+.total{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+.total .big{font-family:var(--display);font-weight:800;font-size:1.8rem;color:var(--pc)}
+
+/* beaches */
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:14px}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:.9rem}
+th,td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500;background:var(--surface)}
+tr:last-child td{border-bottom:0}
+.water{display:inline-flex;gap:3px}
+.water i{width:10px;height:10px;border-radius:50%;background:var(--line)}
+.water i.on{background:var(--sea)}
+
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.card p{font-size:.9rem;color:var(--muted)}
+.tips{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:10px;max-width:68ch}
+.src{font-size:.85rem;display:flex;flex-direction:column;gap:6px}
+
+@media (max-width:640px){
+  .compare{grid-template-columns:1fr}
+  .grid2{grid-template-columns:1fr}
+  .rv{grid-template-columns:1fr;gap:4px}
+  .it{grid-template-columns:1fr auto;gap:4px 12px}
+  .it .time{grid-column:1/-1;padding-top:0}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="hero">
+    <div class="horizon" aria-hidden="true"><div class="wall"></div></div>
+    <span class="eyebrow">Viaje en grupo · Cartagena de Indias</span>
+    <h1>Cartagena, puente de Todos los Santos</h1>
+    <div class="facts">
+      <span class="chip">Vie 30 oct → Lun 2 nov 2026</span>
+      <span class="chip">5 personas</span>
+      <span class="chip">Base: Bocagrande / El Laguito</span>
+      <span class="chip">Lunes 2 es festivo</span>
+    </div>
+    <p class="lead">Revisión del plan que armaron, tres versiones listas para escoger según presupuesto y una guía de playas con agua azul. Precios por persona en COP, consultados el 12 de octubre de 2026.</p>
+  </header>
+
+  <section>
+    <span class="eyebrow">01 · Su plan, revisado</span>
+    <h2>Está bien armado. Hay cuatro cosas por ajustar.</h2>
+    <div class="review">
+      <div class="rv"><div class="day">Viernes 30</div><div>
+        <span class="tag t-ok">Bien</span>Serrezuela y la caminata nocturna por el Centro y Getsemaní funcionan muy bien la primera noche.
+        <ul>
+          <li><span class="tag t-warn">Ojo</span>Townhouse Rooftop abre más o menos hasta medianoche, no hasta la 1 a. m. Para cerrar tarde, sigan a <b>Alquímico</b> (abre hasta las 2 a. m.) o a <b>Café Havana</b> (salsa en vivo hasta las 3 a. m.).</li>
+          <li>Ese día hay un evento de las Fiestas de la Independencia en la Plaza de Variedades (Noche de Tradición Festiva).</li>
+        </ul></div></div>
+      <div class="rv"><div class="day">Sábado 31</div><div>
+        <span class="tag t-warn">Precio</span>El catamarán les sale en 188k. El <b>Catamarán Bonavida Sunset</b> cuesta 131k con la tasa incluida y tiene el mismo horario (4:30–7 p. m.). El Barco Pirata cuesta 70k.
+        <ul><li><span class="tag t-ok">Bien</span>La rumba cae en Halloween. Es la mejor noche para salir, pero los covers suben, así que reserven mesa con tiempo.</li></ul></div></div>
+      <div class="rv"><div class="day">Domingo 1</div><div>
+        <span class="tag t-warn">Decidir</span>Bora Bora y Mambo son experiencias distintas, no solo precios distintos.
+        <ul>
+          <li><b>Bora Bora</b> (450k + 34k de tasa portuaria en efectivo) está en Islas del Rosario. Tiene el agua más transparente y menos gente.</li>
+          <li><b>Mambo</b> (hoy aparece en 100k, no en 180k) queda en Playa Blanca, en Barú. El agua es azul, pero en puente festivo se llena y hay muchos vendedores.</li>
+          <li>Hay un punto medio: el <b>Tour 5 Islas</b> (275k) pasa por Rosario, Cholón y Playa Blanca.</li>
+        </ul></div></div>
+      <div class="rv"><div class="day">Lunes 2</div><div>
+        <span class="tag t-bad">Ajustar</span>Es el día del check-out (normalmente entre 11 a. m. y 12 m.). Antes de salir a las 8 a. m. tienen que entregar el Airbnb o pedir que les guarden las maletas.
+        <ul>
+          <li>El Castillo cuesta 33k para colombianos con cédula, no 25k. Abre a las 7 a. m., así que lleguen temprano para evitar el calor.</li>
+          <li>La Plaza de la Trinidad entre las 2 y las 3 p. m. está vacía y hace mucho calor. Se vive de noche, así que pásenla para las 4:30 p. m., justo antes del BBC.</li>
+          <li>Confirmen la hora del vuelo o del bus de regreso. Si salen esa tarde, el plan tiene que terminar antes.</li>
+        </ul></div></div>
+    </div>
+    <div class="callout">
+      <p><strong>¿Es caro?</strong> Las actividades de su plan suman <b class="num">~$805k por persona</b> con Bora Bora o <b class="num">~$420k–500k</b> con Mambo, sin contar comida, tragos ni el Airbnb. Lo que más pesa es el pasadía del domingo: cambiar de beach club mueve casi $350k por persona.</p>
+    </div>
+  </section>
+
+  <section id="planes">
+    <span class="eyebrow">02 · Tres opciones</span>
+    <h2>Escojan el plan</h2>
+    <div class="compare" role="group" aria-label="Comparar planes">
+      <button class="pc" data-plan="a" style="--pc:var(--sea)" aria-pressed="false"><span class="eyebrow">Plan A</span><h3>Ahorro con estilo</h3><span class="k num">~$250k</span><div class="bar"><i style="width:31%"></i></div><span class="who">Playa Blanca, barco al atardecer, chiva y Castillo. Lo mismo, pero más barato.</span></button>
+      <button class="pc" data-plan="b" style="--pc:var(--sun)" aria-pressed="true"><span class="eyebrow">Plan B · Recomendado</span><h3>Su plan, ajustado</h3><span class="k num">~$550k</span><div class="bar"><i style="width:68%"></i></div><span class="who">Su plan con mejores precios y un tour por las islas con agua cristalina.</span></button>
+      <button class="pc" data-plan="c" style="--pc:var(--bloom)" aria-pressed="false"><span class="eyebrow">Plan C</span><h3>Premium Rosario</h3><span class="k num">~$750k</span><div class="bar"><i style="width:93%"></i></div><span class="who">Bora Bora, rooftops y atardecer en la muralla. Para darse el gusto.</span></button>
+    </div>
+    <p class="muted" style="font-size:.85rem">Las cifras son las actividades por persona. No incluyen el Airbnb, la comida ni los tragos. Calculen aparte unos $120k–200k por persona al día para comer y tomar algo (es un estimado).</p>
+
+    <div class="tabs" role="tablist" aria-label="Planes">
+      <button class="tab" role="tab" id="tab-a" data-plan="a" style="--pc:var(--sea)" aria-selected="false">Plan A · Ahorro</button>
+      <button class="tab" role="tab" id="tab-b" data-plan="b" style="--pc:var(--sun)" aria-selected="true">Plan B · Ajustado</button>
+      <button class="tab" role="tab" id="tab-c" data-plan="c" style="--pc:var(--bloom)" aria-selected="false">Plan C · Premium</button>
+    </div>
+    <div id="plan-view" class="plan" role="tabpanel" aria-live="polite"></div>
+  </section>
+
+  <section>
+    <span class="eyebrow">03 · Playas con agua azul</span>
+    <h2>¿Dónde está el agua más clara?</h2>
+    <p class="muted" style="max-width:66ch">Regla general: entre más lejos de la bahía, más transparente el agua. Las playas de Bocagrande son buenas para ir a pie, pero el agua es más turbia. Para el agua azul de las fotos hay que ir a Barú o a las Islas del Rosario. La transparencia la estimamos nosotros a partir de las guías.</p>
+    <div class="tbl"><table>
+      <thead><tr><th>Opción</th><th>Dónde</th><th>Agua</th><th>Precio p/p</th><th>Ideal para</th></tr></thead>
+      <tbody>
+        <tr><td><b>Playa Tranquila</b></td><td>Barú (por tierra)</td><td><span class="water" aria-label="3 de 5"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span></td><td class="num">$80.000</td><td>Lo más barato, menos gente que Playa Blanca</td></tr>
+        <tr><td><b>Mambo Beach Club</b></td><td>Playa Blanca, Barú</td><td><span class="water"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span></td><td class="num">$100.000</td><td>Beach club barato, ambiente animado</td></tr>
+        <tr><td><b>Palmarito Beach</b></td><td>Tierra Bomba</td><td><span class="water"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span></td><td class="num">$210.000</td><td>Piscina, cerca, poca navegación</td></tr>
+        <tr><td><b>Tour 5 Islas</b></td><td>Rosario + Cholón + Barú</td><td><span class="water"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span></td><td class="num">$275.000</td><td>Ver varias islas, la fiesta de Cholón y snorkel</td></tr>
+        <tr><td><b>Isla Múcura</b></td><td>San Bernardo</td><td><span class="water"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span></td><td class="num">$280.000</td><td>El agua más cristalina, pero el viaje es largo</td></tr>
+        <tr><td><b>Islabela</b></td><td>Islas del Rosario</td><td><span class="water"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span></td><td class="num">$380.000</td><td>Playa amplia de arena, de las pocas en Rosario</td></tr>
+        <tr><td><b>Bora Bora</b></td><td>Islas del Rosario</td><td><span class="water"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span></td><td class="num">$450.000<br><small class="muted">+ $34.000 de tasa</small></td><td>Beach club premium, almuerzo y cóctel</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section>
+    <span class="eyebrow">04 · Para tomar algo</span>
+    <h2>Bares y rooftops</h2>
+    <div class="grid2">
+      <div class="card"><h3>Alquímico</h3><p>Coctelería de autor con rooftop en el Centro. Abre todos los días de 7 p. m. a 2 a. m. Código de vestimenta: smart casual.</p><div class="links"><a href="https://www.google.com/search?tbm=isch&q=Alquimico+Cartagena+rooftop" target="_blank" rel="noopener">Ver fotos ↗</a><a href="https://www.google.com/maps/search/?api=1&query=Alquimico+Cartagena" target="_blank" rel="noopener">Mapa ↗</a></div></div>
+      <div class="card"><h3>Townhouse Rooftop</h3><p>Piscina en la azotea en San Diego. Abre hasta medianoche, aproximadamente. Reserven, porque el aforo es limitado y puede haber consumo mínimo.</p><div class="links"><a href="https://www.google.com/search?tbm=isch&q=Townhouse+Rooftop+Cartagena" target="_blank" rel="noopener">Ver fotos ↗</a><a href="https://www.google.com/maps/search/?api=1&query=Townhouse+Rooftop+Cartagena" target="_blank" rel="noopener">Mapa ↗</a></div></div>
+      <div class="card"><h3>Café Havana</h3><p>Salsa en vivo en Getsemaní, de martes a domingo, de 8 p. m. a 3 a. m. Lleguen temprano porque se llena.</p><div class="links"><a href="https://www.google.com/search?tbm=isch&q=Cafe+Havana+Cartagena" target="_blank" rel="noopener">Ver fotos ↗</a><a href="https://www.google.com/maps/search/?api=1&query=Cafe+Havana+Getsemani" target="_blank" rel="noopener">Mapa ↗</a></div></div>
+      <div class="card"><h3>Plaza de la Trinidad</h3><p>El corazón de Getsemaní de noche: comida callejera, música y cerveza barata. Es gratis.</p><div class="links"><a href="https://www.google.com/search?tbm=isch&q=Plaza+de+la+Trinidad+Getsemani+noche" target="_blank" rel="noopener">Ver fotos ↗</a><a href="https://www.google.com/maps/search/?api=1&query=Plaza+de+la+Trinidad+Cartagena" target="_blank" rel="noopener">Mapa ↗</a></div></div>
+    </div>
+  </section>
+
+  <section>
+    <span class="eyebrow">05 · Videos y plataformas</span>
+    <h2>Para ver antes de ir</h2>
+    <div class="grid2">
+      <div class="card"><h3>Videos</h3>
+        <p><a href="https://www.youtube.com/watch?v=BRaOjCncglg" target="_blank" rel="noopener">¿Cuánto cuesta un día en Islas del Rosario? ↗</a> · YouTube</p>
+        <p><a href="https://www.youtube.com/watch?v=5l-qKBYQC5o" target="_blank" rel="noopener">Islas del Rosario barato: tour 4 islas, Cholón ↗</a> · YouTube</p>
+        <p><a href="https://www.youtube.com/watch?v=h8BYv0Jx69E" target="_blank" rel="noopener">Cholón, Barú, Bocachica y El Pueblito ↗</a> · YouTube</p>
+        <p><a href="https://www.pulzo.com/vivir-bien/viajes-y-turismo/cuales-playas-cartagena-economicas-planes-van-desde-80000-pesos-PP4569238" target="_blank" rel="noopener">Playas económicas desde $80.000 ↗</a> · nota sobre el TikTok de @lunaa.traveling</p>
+      </div>
+      <div class="card"><h3>Dónde reservar</h3>
+        <p><a href="https://www.nomades.com/cartagena" target="_blank" rel="noopener">Nomades ↗</a>: pasadías, catamaranes y chivas en COP, con lo que incluye cada uno.</p>
+        <p><a href="https://www.civitatis.com/es/cartagena-de-indias/" target="_blank" rel="noopener">Civitatis ↗</a> y <a href="https://www.guruwalk.com/es/a/cartagena/v101759-excursiones-a-islas-del-rosario-1" target="_blank" rel="noopener">GuruWalk ↗</a>: tours y free tours por propina.</p>
+        <p><a href="https://www.tripadvisor.com/Attractions-g1136613-Activities-c42-Islas_de_Rosario_Cartagena_District_Bolivar_Department.html" target="_blank" rel="noopener">Tripadvisor ↗</a>: reseñas de los tours a Rosario.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <span class="eyebrow">06 · Antes de viajar</span>
+    <h2>Tips para el puente</h2>
+    <ol class="tips">
+      <li><b>Reserven los tours esta semana.</b> Es puente festivo y Halloween, así que los beach clubs y los catamaranes se agotan.</li>
+      <li><b>Lleven efectivo para las tasas.</b> La tasa portuaria (entre $18k y $34k) y la entrada al parque de Rosario ($11k) normalmente se pagan en el muelle.</li>
+      <li><b>Cholón tiene precios oficiales altos.</b> Una picada para 5 cuesta $600k y un parasol con 4 sillas, $50k. Pregunten el precio antes de pedir.</li>
+      <li><b>Lleven la cédula al Castillo</b> para pagar la tarifa de colombianos ($33k en lugar de $38k).</li>
+      <li><b>El domingo 1 en la noche</b> está la "toma de la ciudad" de Ángeles Somos con desfile por el Centro Histórico. Es gratis.</li>
+      <li>Lleven bloqueador, zapatos de agua (las islas tienen piedras) y efectivo para negociar con los vendedores de la playa.</li>
+    </ol>
+  </section>
+
+  <section class="src">
+    <span class="eyebrow">Fuentes</span>
+    <a href="https://www.nomades.com/cartagena" target="_blank" rel="noopener">Nomades: precios de tours en Cartagena</a>
+    <a href="https://www.nomades.com/cartagena/pasadia-bora-bora-id2123" target="_blank" rel="noopener">Nomades: Pasadía Bora Bora</a>
+    <a href="https://www.nomades.com/cartagena/pasadia-mambo-beach-club-id2012" target="_blank" rel="noopener">Nomades: Pasadía Mambo Beach Club</a>
+    <a href="https://www.nomades.com/cartagena/atardecer-catamaran-id966" target="_blank" rel="noopener">Nomades: Catamarán Bonavida Sunset</a>
+    <a href="https://www.eluniversal.com.co/cartagena/2026/02/23/entrada-gratis-al-castillo-de-san-felipe-en-2026-fechas-y-requisitos/" target="_blank" rel="noopener">El Universal: Castillo San Felipe 2026</a>
+    <a href="https://www.eluniversal.com.co/farandula/2026/09/16/fiestas-de-la-independencia-2026-la-agenda-oficial-y-artistas-confirmados/" target="_blank" rel="noopener">El Universal: agenda de las Fiestas 2026</a>
+    <a href="https://www.elpais.com.co/colombia/lista-de-los-precios-oficiales-en-la-isla-de-baru-cartagena-limonada-a-50000-y-masaje-a-150000-0603.html" target="_blank" rel="noopener">El País: precios oficiales en Cholón</a>
+    <a href="https://www.cartagenaexplorer.com/islas-del-rosario-guia/" target="_blank" rel="noopener">Cartagena Explorer: guía de Islas del Rosario</a>
+    <a href="https://therooftopguide.com/rooftop-bars-in-cartagena/alquimico.html" target="_blank" rel="noopener">The Rooftop Guide: Alquímico</a>
+    <a href="https://sandbeds.com/rooftops/townhouse-rooftop-cartagena/" target="_blank" rel="noopener">Sandbeds: Townhouse Rooftop</a>
+    <a href="https://www.salsavida.com/es/event/uncategorized/live-salsa-nights-at-cafe-havana-cartagena/" target="_blank" rel="noopener">SalsaVida: Café Havana</a>
+    <a href="https://www.calendariodecolombia.com/fechas/proximo-puente-cuando-cae-todos-los-santos-y-que-dias-libres-genera-en-colombia-nx2zwt" target="_blank" rel="noopener">Calendario de Colombia: festivo del 2 de noviembre</a>
+  </section>
+</div>
+
+<script>
+const img = q => `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(q)}`;
+const map = q => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
+const DAYS = ["Viernes 30 oct","Sábado 31 oct · Halloween","Domingo 1 nov","Lunes 2 nov · Festivo"];
+const PLANS = {
+ a:{color:"var(--sea)",total:"~$250.000",note:"Actividades por persona. La rumba de Halloween en Getsemaní tiene cover variable o gratis en muchos bares.",days:[
+  [["4:00 pm","Check-in en el Airbnb","Bocagrande","",""],
+   ["5:30 pm","Atardecer en las murallas","Caminen por la muralla del Centro y tomen algo en uno de los baluartes.","Gratis","Murallas Cartagena atardecer"],
+   ["7:30 pm","Cena y tragos en la Plaza de la Trinidad","Comida callejera y música en Getsemaní.","~$40k","Plaza de la Trinidad Cartagena"],
+   ["10:00 pm","Café Havana o bares de la Calle del Arsenal","Salsa en vivo o rumba local.","Cover variable","Cafe Havana Cartagena"]],
+  [["9:00 am","Playa en Castillogrande","A pocos minutos a pie del Airbnb. Agua tranquila.","Gratis","Playa Castillogrande Cartagena"],
+   ["1:00 pm","Reunión de Isa y comprar la torta","","",""],
+   ["4:30 pm","Atardecer en el Barco Pirata","Sale del Muelle de la Bodeguita, de 4:30 a 7 p. m.","$70k","Barco pirata Cartagena atardecer"],
+   ["7:00 pm","Chiva rumbera","Recorrido nocturno con música, de 7 a 9 p. m.","$24k","Chiva rumbera Cartagena"],
+   ["10:00 pm","Halloween en Getsemaní","Fiesta de disfraces en la calle y en los bares.","Variable","Getsemani Halloween"]],
+  [["8:00 am","Pasadía en Mambo Beach Club, Playa Blanca","Incluye transporte, guía y un bono de almuerzo de $30k. Regresan a las 4 p. m.","$100k","Mambo Beach Club Playa Blanca Baru"],
+   ["7:00 pm","Desfile Ángeles Somos en el Centro","Evento de las Fiestas de la Independencia.","Gratis","Centro historico Cartagena noche"]],
+  [["7:30 am","Check-out y dejar las maletas","Coordinen con el anfitrión.","",""],
+   ["8:00 am","Castillo San Felipe","Lleven la cédula para la tarifa de colombianos.","$33k","Castillo San Felipe de Barajas"],
+   ["10:30 am","Free tour por la Ciudad Amurallada","Torre del Reloj, Santo Domingo y San Diego.","Propina ~$20k","Torre del Reloj Cartagena"],
+   ["12:30 pm","Almuerzo corrientazo en el Centro","","~$30k",""],
+   ["2:30 pm","Las Bóvedas y el Muelle de la Bodeguita","Compras de recuerdos.","Gratis","Las Bovedas Cartagena"],
+   ["5:00 pm","BBC","Para cerrar el viaje.","Consumo",""]]]},
+ b:{color:"var(--sun)",total:"~$550.000",note:"Actividades por persona. El Tour 5 Islas puede cobrar aparte la entrada al parque ($11k). Confírmenlo al reservar.",days:[
+  [["4:00 pm","Check-in en el Airbnb","Bocagrande","",""],
+   ["6:00 pm","Serrezuela","Centro comercial en la antigua plaza de toros. Tiene comida y una arquitectura muy bonita.","Consumo","La Serrezuela Cartagena"],
+   ["8:00 pm","Caminata por el Centro y Getsemaní","Torre del Reloj, Plaza Santo Domingo y los murales de Getsemaní.","Gratis","Getsemani Cartagena murales noche"],
+   ["10:00 pm","Townhouse Rooftop y luego Alquímico","Townhouse cierra hacia medianoche. Alquímico sigue abierto hasta las 2 a. m.","Cócteles","Alquimico Cartagena rooftop"]],
+  [["1:00 pm","Reunión de Isa y comprar la torta","","",""],
+   ["4:30 pm","Catamarán Bonavida Sunset","Incluye un trago, un snack y la tasa. Sale del Muelle de la Bodeguita, puerta 3.","$131k","Catamaran Bonavida Cartagena"],
+   ["10:00 pm","Rumba de Halloween","Reserven mesa, porque los covers suben esa noche.","~$100k","Discoteca Cartagena Halloween"]],
+  [["7:45 am","Tour 5 Islas: Rosario y Barú","Agua cristalina en Rosario, la fiesta de Cholón y Playa Blanca, todo en un día. Regresan a las 6 p. m.","$275k","Islas del Rosario agua cristalina"],
+   ["8:00 pm","Noche tranquila o desfile Ángeles Somos","","Gratis",""]],
+  [["7:30 am","Check-out y dejar las maletas","","",""],
+   ["8:00 am","Castillo San Felipe","Abre a las 7 a. m.","$33k","Castillo San Felipe de Barajas"],
+   ["10:15 am","ChocoMuseo","Pregunten en el lugar por la entrada o el taller.","Consultar","ChocoMuseo Cartagena"],
+   ["12:00 pm","Almuerzo","","~$50k",""],
+   ["2:00 pm","Getsemaní y el Muelle de la Bodeguita","","Gratis","Muelle de la Bodeguita Cartagena"],
+   ["4:30 pm","Plaza de la Trinidad","Ya empieza a bajar el sol.","Gratis","Plaza de la Trinidad Cartagena"],
+   ["5:30 pm","BBC","","Consumo",""]]]},
+ c:{color:"var(--bloom)",total:"~$750.000",note:"Actividades por persona. La tasa portuaria de Bora Bora ($34k) se paga en efectivo en el muelle.",days:[
+  [["4:00 pm","Check-in en el Airbnb","Bocagrande","",""],
+   ["5:30 pm","Atardecer con tragos en la muralla","En uno de los bares sobre la muralla, frente al mar.","Cócteles","Cafe del Mar Cartagena atardecer"],
+   ["8:00 pm","Cena en un restaurante del Centro","","~$120k",""],
+   ["10:00 pm","Townhouse Rooftop y luego Alquímico","Reserven mesa en los dos.","Cócteles","Townhouse Rooftop Cartagena"]],
+  [["9:00 am","Playa y brunch en Bocagrande","","Consumo","Bocagrande playa"],
+   ["1:00 pm","Reunión de Isa y comprar la torta","","",""],
+   ["4:30 pm","Catamarán Bonavida Sunset","","$131k","Catamaran Bonavida Cartagena"],
+   ["10:00 pm","Halloween en una discoteca","Mesa reservada.","~$100k+","Discoteca Cartagena Halloween"]],
+  [["7:30 am","Pasadía en Bora Bora Beach Club","En Islas del Rosario. Incluye navegación, cóctel, almuerzo y uso del club. Regresan a las 3 p. m.","$450k + $34k","Bora Bora Beach Club Cartagena"],
+   ["8:00 pm","Desfile Ángeles Somos en el Centro","","Gratis",""]],
+  [["7:30 am","Check-out y dejar las maletas","","",""],
+   ["8:00 am","Castillo San Felipe","","$33k","Castillo San Felipe de Barajas"],
+   ["10:15 am","ChocoMuseo","","Consultar","ChocoMuseo Cartagena"],
+   ["12:00 pm","Almuerzo","","~$80k",""],
+   ["2:00 pm","Getsemaní y el Muelle de la Bodeguita","","Gratis","Getsemani Cartagena"],
+   ["4:30 pm","Plaza de la Trinidad","","Gratis","Plaza de la Trinidad Cartagena"],
+   ["5:30 pm","BBC","","Consumo",""]]]}
+};
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function render(k){
+  const p = PLANS[k], v = document.getElementById("plan-view");
+  v.style.setProperty("--pc", p.color);
+  v.innerHTML = p.days.map((items,i)=>`
+    <div class="dayblock"><div class="dayhead"><h3>${DAYS[i]}</h3><span class="eyebrow">Día ${i+1}</span></div>
+    ${items.map(([t,w,d,pr,q])=>`<div class="it"><span class="time">${esc(t)}</span><div class="what"><b>${esc(w)}</b>${d?`<p>${esc(d)}</p>`:""}${q?`<div class="links"><a href="${img(q)}" target="_blank" rel="noopener">Ver fotos ↗</a><a href="${map(q)}" target="_blank" rel="noopener">Mapa ↗</a></div>`:""}</div><span class="price num">${esc(pr)}</span></div>`).join("")}
+    </div>`).join("") + `<div class="total"><div><span class="eyebrow">Total de actividades por persona</span><p class="muted" style="font-size:.88rem;max-width:52ch">${esc(p.note)}</p></div><span class="big num">${p.total}</span></div>`;
+  document.querySelectorAll("[data-plan]").forEach(b=>{
+    const on = b.dataset.plan===k;
+    b.setAttribute(b.classList.contains("tab")?"aria-selected":"aria-pressed", on);
+  });
+  try{localStorage.setItem("ctg-plan",k)}catch(e){}
+}
+document.querySelectorAll("[data-plan]").forEach(b=>b.addEventListener("click",()=>{render(b.dataset.plan); if(b.classList.contains("pc")) document.querySelector(".tabs").scrollIntoView({behavior:"smooth",block:"start"});}));
+let start="b"; try{start=localStorage.getItem("ctg-plan")||"b"}catch(e){}
+render(PLANS[start]?start:"b");
+</script>
+
+</body>
+</html>
